@@ -329,17 +329,17 @@ namespace HDO.Application.DAL
         /// Fills the public properties of a class from a DataRow where the name
         /// of the property matches a column name from that DataRow.
         /// </summary>
-        /// <param name="Row">A IDataRecord that contains the data.</param>
+        /// <param name="row">A IDataRecord that contains the data.</param>
         /// <returns>A class of type T with its public properties set to the
         ///      data from the matching columns in the DataRow.</returns>
-        private static T MapEntity<T>(IDataRecord Row) where T : class, new()
+        private static T MapEntity<T>(IDataRecord row) where T : class, new()
         {
             T result = new T();
             Type classType = typeof(T);
 
             // Defensive programming, make sure there are properties to set,
             //   and columns to set from and values to set from.
-            if ((Row.FieldCount < 1) || (classType.GetProperties().Length < 1))
+            if ((row.FieldCount < 1) || (classType.GetProperties().Length < 1))
             {
                 return result;
             }
@@ -347,7 +347,7 @@ namespace HDO.Application.DAL
             foreach (PropertyInfo property in classType.GetProperties())
             {
                 // Gets all the column names from the data reader.
-                var columnNames = GetColumnNames(Row);
+                var columnNames = GetColumnNames(row);
 
                 // Only set properties which match column names in the result.
                 foreach (string columnName in columnNames)
@@ -357,7 +357,7 @@ namespace HDO.Application.DAL
                         continue;
 
                     // This would throw if we tried to convert it below
-                    if (Row[columnName] == DBNull.Value)
+                    if (row[columnName] == DBNull.Value)
                         continue;
 
                     object newValue;
@@ -365,11 +365,11 @@ namespace HDO.Application.DAL
                     // If type is of type System.Nullable, do not attempt to convert the value
                     if (IsNullable(property.PropertyType))
                     {
-                        newValue = Row[property.Name];
+                        newValue = row[property.Name];
                     }
                     else
                     {   // Convert row object to type of property
-                        newValue = Convert.ChangeType(Row[columnName], property.PropertyType);
+                        newValue = Convert.ChangeType(row[columnName], property.PropertyType);
                     }
 
                     // This is what sets the class properties of the class
